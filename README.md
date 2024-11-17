@@ -31,7 +31,7 @@ COXWAVE_CHATBOT/
 
 ## 설치 및 실행 방법
 
-1. app 디렉토리 아래 data 디렉토리를 생성한 후, final_result.pkl 파일 업로드.
+1. app 디렉토리 아래 data 디렉토리를 생성한 후, final_result.pkl 파일 업로드
 
 
 2. 필요한 패키지 설치:
