@@ -1,0 +1,6 @@
+fastapi
+chromadb
+openai
+pandas
+tiktoken
+jinja2
