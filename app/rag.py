@@ -61,7 +61,7 @@ class RAGSystem:
             with suppress_logging():
                 results = self.collection.query(
                     query_texts=[user_query],
-                    n_results=1
+                    n_results=3
                 )
             
             if results["documents"] and results["documents"][0]:
