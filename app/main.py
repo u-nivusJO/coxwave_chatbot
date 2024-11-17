@@ -35,17 +35,28 @@ async def read_root(request: Request):
 async def chat_endpoint(request: ChatRequest):
     async def generate_response():
         try:
-            response = rag_system.query(request.question)
-            yield f"data: {json.dumps({'content': response})}\n\n"
+            response = rag_system.query(
+                user_query=request.question,
+                chat_history=request.chat_history
+            )
+            
+            response_data = {
+                'content': response,
+                'chat_history': rag_system.chat_history
+            }
+            
+            yield f"data: {json.dumps(response_data)}\n\n"
             yield "data: [DONE]\n\n"
+            
         except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            error_data = {'error': str(e)}
+            yield f"data: {json.dumps(error_data)}\n\n"
             yield "data: [DONE]\n\n"
 
     return StreamingResponse(
         generate_response(),
         media_type="text/event-stream"
     )
- 
+
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
