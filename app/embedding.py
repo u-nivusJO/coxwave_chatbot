@@ -60,43 +60,43 @@ def get_all_existing_ids():
         return set()
 
 def embed_and_store_faq_data(faq_dict: Dict[str, str]) -> Optional[chromadb.Collection]:
-    """FAQ 데이터 임베딩 및 저장"""
-    try:
-        new_documents = []
-        new_metadatas = []
-        new_ids = []
-        
-        existing_ids = get_all_existing_ids()
-        
-        for question, answer in faq_dict.items():
-            doc_id = question.replace("/", "-")
-            
-            if doc_id in existing_ids:
-                continue
-            
-            truncated_answer = truncate_string_to_tokens(answer, max_tokens=8000)
-            
-            new_documents.append(truncated_answer)
-            new_metadatas.append({"question": question})
-            new_ids.append(doc_id)
-
-        if new_documents:
-            batch_size = 20
-            for i in range(0, len(new_documents), batch_size):
-                try:
-                    batch_end = min(i + batch_size, len(new_documents))
-                    with logging.getLogger().disabled:
-                        collection.add(
-                            documents=new_documents[i:batch_end],
-                            metadatas=new_metadatas[i:batch_end],
-                            ids=new_ids[i:batch_end]
-                        )
-                except Exception as e:
-                    continue
-
-        return collection
-        
-    except Exception as e:
-        return None
+   try:
+       new_documents = []
+       new_metadatas = []
+       new_ids = []
+              
+       for question, answer in faq_dict.items():
+           doc_id = question.replace("/", "-")
+           
+           truncated_answer = truncate_string_to_tokens(answer, max_tokens=8000)
+           
+           new_documents.append(truncated_answer)
+           new_metadatas.append({"question": question})
+           new_ids.append(doc_id)
+                  
+       if new_documents:
+           batch_size = 100
+           batches_processed = 0
+           
+           for i in range(0, len(new_documents), batch_size):
+               try:
+                   batch_end = min(i + batch_size, len(new_documents))
+                   collection.add(
+                       documents=new_documents[i:batch_end],
+                       metadatas=new_metadatas[i:batch_end], 
+                       ids=new_ids[i:batch_end]
+                   )
+                   batches_processed += 1
+                   print(f"배치 {batches_processed} 임베딩 완료 ({i+batch_size}/{len(new_documents)})")
+               except Exception as e:
+                   print(f"배치 {batches_processed} 임베딩 중 오류: {str(e)}")
+                   continue
+       
+       print("embedding done...")
+       return collection
+       
+   except Exception as e:
+       print(f"임베딩 중 오류 발생: {str(e)}")
+       return None
     
     
