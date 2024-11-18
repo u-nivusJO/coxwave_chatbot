@@ -24,7 +24,7 @@ class RAGSystem:
             input_path="./app/data/final_result.pkl",
             output_path="./app/data/processed_final_result.pkl"
         )
-        
+    
     def initialize(self):
         """FAQ 데이터 로드 및 임베딩"""
         if self.is_initialized:
@@ -39,6 +39,15 @@ class RAGSystem:
             
         except Exception as e:
             raise
+
+    def format_chat_history(self, chat_history: List[Dict[str, str]]) -> str:
+        """채팅 이력을 문자열로 포매팅"""
+        formatted_history = []
+        for message in chat_history:
+            role = message["role"]
+            content = message["content"]
+            formatted_history.append(f"{'사용자' if role == 'user' else '챗봇'}: {content}")
+        return "\n".join(formatted_history)
 
     def query(self, user_query: str, chat_history: Optional[List[Dict[str, str]]] = None) -> tuple[str, List[Dict[str, str]]]:
         """
@@ -58,17 +67,22 @@ class RAGSystem:
             if chat_history is None:
                 chat_history = []
                 
+            chat_context = self.format_chat_history(chat_history[-4:]) if chat_history else ""
+            search_query = f"{chat_context}\n{user_query}" if chat_context else user_query
+            
             with suppress_logging():
                 results = self.collection.query(
-                    query_texts=[user_query],
+                    query_texts=[search_query],
                     n_results=3
                 )
             
             if results["documents"] and results["documents"][0]:
                 context = results["documents"][0][0]
+                combined_context = f"이전 대화:\n{chat_context}\n\nFAQ 정보:\n{context}" if chat_context else context
                 
                 updated_history = chat_history + [{"role": "user", "content": user_query}]
-                response = generate_response(context, user_query, updated_history)
+                response = generate_response(combined_context, user_query, updated_history)
+                
                 final_history = updated_history + [{"role": "assistant", "content": response}]
                 
                 return response, final_history
