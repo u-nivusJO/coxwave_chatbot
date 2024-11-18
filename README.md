@@ -34,17 +34,17 @@ COXWAVE_CHATBOT/
 1. app 디렉토리 아래 data 디렉토리를 생성한 후, final_result.pkl 파일 업로드
 2. Python 가상환경 설정 및 활성화:
 
-  Windows의 경우:
-  ```bash
-  python -m venv venv
-  .\venv\Scripts\activate
-  ```
-  
-  macOS/Linux의 경우:
-  ```bash
-  python -m venv venv
-  source venv/bin/activate
-  ```
+    Windows의 경우:
+    ```bash
+    python -m venv venv
+    .\venv\Scripts\activate
+    ```
+
+    macOS/Linux의 경우:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate
+    ```
 3. 필요한 패키지 설치:
 
     ```bash
