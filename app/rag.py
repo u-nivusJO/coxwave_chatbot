@@ -3,6 +3,7 @@ from app.model import generate_response
 from app.data_load import DataLoader
 import logging
 import contextlib
+from typing import List, Dict, Optional
 
 @contextlib.contextmanager
 def suppress_logging():
@@ -19,7 +20,6 @@ class RAGSystem:
         self.collection = collection
         self.is_initialized = False
         self.embedding_function = embedding_func
-        self.chat_history = []
         self.data_loader = DataLoader(
             input_path="./app/data/final_result.pkl",
             output_path="./app/data/processed_final_result.pkl"
@@ -40,7 +40,7 @@ class RAGSystem:
         except Exception as e:
             raise
 
-    def query(self, user_query: str, chat_history: list = None) -> str:
+    def query(self, user_query: str, chat_history: Optional[List[Dict[str, str]]] = None) -> tuple[str, List[Dict[str, str]]]:
         """
         사용자 질문에 대한 응답 생성
         
@@ -49,14 +49,14 @@ class RAGSystem:
             chat_history (list, optional): 이전 대화 기록
             
         Returns:
-            str: 생성된 응답
+            tuple[str, list]: (생성된 응답, 업데이트된 대화 기록)
         """
         try:
             if not self.is_initialized:
                 self.initialize()
             
-            if chat_history:
-                self.chat_history = chat_history
+            if chat_history is None:
+                chat_history = []
                 
             with suppress_logging():
                 results = self.collection.query(
@@ -66,14 +66,14 @@ class RAGSystem:
             
             if results["documents"] and results["documents"][0]:
                 context = results["documents"][0][0]
-                response = generate_response(context, user_query, self.chat_history)
                 
-                self.chat_history.append({"role": "user", "content": user_query})
-                self.chat_history.append({"role": "assistant", "content": response})
+                updated_history = chat_history + [{"role": "user", "content": user_query}]
+                response = generate_response(context, user_query, updated_history)
+                final_history = updated_history + [{"role": "assistant", "content": response}]
                 
-                return response
+                return response, final_history
+            
+            return "적절한 답변을 찾을 수 없습니다.", chat_history
                 
         except Exception as e:
-            return f"오류가 발생했습니다: {str(e)}"
-
-rag_system = RAGSystem()
+            return f"오류가 발생했습니다: {str(e)}", chat_history

@@ -78,23 +78,18 @@
 
     <script>
         let chatHistory = [];
+        const messagesDiv = document.getElementById('messages');
+        const input = document.getElementById('question-input');
 
         function appendMessage(content, isUser = false) {
-            const messagesDiv = document.getElementById('messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
             messageDiv.textContent = content;
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-            chatHistory.push({
-                role: isUser ? "user" : "assistant",
-                content: content
-            });
         }
 
         async function sendMessage() {
-            const input = document.getElementById('question-input');
             const question = input.value.trim();
             if (!question) return;
 
@@ -115,15 +110,19 @@
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
+                let partialResponse = '';
 
                 while (true) {
                     const { value, done } = await reader.read();
                     if (done) break;
 
                     const text = decoder.decode(value);
-                    const lines = text.split('\n');
+                    const lines = (partialResponse + text).split('\n');
+                    
+                    partialResponse = lines[lines.length - 1];
 
-                    for (const line of lines) {
+                    for (let i = 0; i < lines.length - 1; i++) {
+                        const line = lines[i].trim();
                         if (line.startsWith('data: ')) {
                             const content = line.slice(6).trim();
                             if (content === '[DONE]') continue;
@@ -150,10 +149,14 @@
             }
         }
 
-        document.getElementById('question-input').addEventListener('keypress', function(e) {
+        input.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
+        });
+
+        window.addEventListener('load', () => {
+            input.focus();
         });
     </script>
 </body>
