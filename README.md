@@ -34,22 +34,7 @@ COXWAVE_CHATBOT/
 1. app 디렉토리 아래 data 디렉토리를 생성한 후, final_result.pkl 파일 업로드
 
 
-2. 필요한 패키지 설치:
-
-```bash
-pip install -r requirements.txt
-```
-
-
-3. 루트 디렉토리에 `.env` 파일 생성:
-```plaintext
-OPENAI_API_KEY = "your openai api key"
-EMBEDDING_MODEL = "text-embedding-ada-002"
-LLM_MODEL = "gpt-3.5-turbo"
-```
-
-
-4. Python 가상환경 설정 및 활성화:
+2.Python 가상환경 설정 및 활성화:
 
 Windows의 경우:
 ```bash
@@ -62,6 +47,21 @@ macOS/Linux의 경우:
 python -m venv venv
 source venv/bin/activate
 ```
+
+3. 필요한 패키지 설치:
+
+```bash
+pip install -r requirements.txt
+```
+
+
+4. 루트 디렉토리에 `.env` 파일 생성:
+```plaintext
+OPENAI_API_KEY = "your openai api key"
+EMBEDDING_MODEL = "text-embedding-ada-002"
+LLM_MODEL = "gpt-3.5-turbo"
+```
+
 
 5. 애플리케이션 실행:
 ```bash
