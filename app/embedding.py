@@ -75,7 +75,7 @@ def embed_and_store_faq_data(faq_dict: Dict[str, str]) -> Optional[chromadb.Coll
            new_ids.append(doc_id)
                   
        if new_documents:
-           batch_size = 100
+           batch_size = 20
            batches_processed = 0
            
            for i in range(0, len(new_documents), batch_size):
